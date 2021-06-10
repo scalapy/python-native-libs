@@ -56,11 +56,12 @@ class Python private (
     nativeLibPaths <- nativeLibPaths
     library <- library
   } yield {
-    val paths = nativeLibPaths.mkString(pathSeparator)
-    val currentPaths = Properties.propOrEmpty("jna.library.path")
-    val newPaths =
-      if (currentPaths contains paths) currentPaths
-      else Seq(paths, currentPaths).mkString(pathSeparator)
+    val currentPathsStr = Properties.propOrEmpty("jna.library.path")
+    val currentPaths = currentPathsStr.split(pathSeparator)
+    val pathsToAdd = nativeLibPaths.diff(currentPaths)
+    val newPaths = pathsToAdd.mkString(pathSeparator) +
+      (if (currentPathsStr == "") "" else pathSeparator) +
+      currentPathsStr
 
     Map("jna.library.path" -> newPaths, "scalapy.python.library" -> library)
   }
