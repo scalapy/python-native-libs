@@ -45,16 +45,16 @@ class Python private (
   private def ldversion: Try[String] =
     callPython("import sysconfig;print(sysconfig.get_config_var('LDVERSION'))")
 
-  lazy val nativeLibPaths: Try[Seq[String]] =
+  lazy val nativeLibraryPaths: Try[Seq[String]] =
     callPython("import sys;print(sys.exec_prefix)")
       .map(_ + "/lib")
       .map(Seq(_))
 
-  lazy val library = ldversion.map("python" + _)
+  lazy val nativeLibrary = ldversion.map("python" + _)
 
-  private def scalapyPropsTry: Try[Map[String, String]] = for {
-    nativeLibPaths <- nativeLibPaths
-    library <- library
+  def scalaPyProperties: Try[Map[String, String]] = for {
+    nativeLibPaths <- nativeLibraryPaths
+    library <- nativeLibrary
   } yield {
     val currentPathsStr = Properties.propOrEmpty("jna.library.path")
     val currentPaths = currentPathsStr.split(pathSeparator)
@@ -65,14 +65,6 @@ class Python private (
 
     Map("jna.library.path" -> newPaths, "scalapy.python.library" -> library)
   }
-
-  private def currentProps: Map[String, String] =
-    LazyList("jna.library.path", "scalapy.python.library")
-      .map(p => p -> Properties.propOrEmpty(p))
-      .toMap
-
-  def scalapyProps: Map[String, String] =
-    currentProps ++ scalapyPropsTry.getOrElse(Map.empty)
 }
 
 object Python {
