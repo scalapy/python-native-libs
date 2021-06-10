@@ -1,4 +1,4 @@
-package python
+package ai.kien.python
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
