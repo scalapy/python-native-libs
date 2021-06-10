@@ -9,3 +9,13 @@ lazy val root = (project in file("."))
     name := "Python Native Libs",
     libraryDependencies += scalaTest % Test
   )
+
+lazy val docs = project
+  .in(file("python-docs"))
+  .settings(
+    mdocVariables := Map(
+      "VERSION" -> version.value
+    )
+  )
+  .dependsOn(root)
+  .enablePlugins(MdocPlugin)
