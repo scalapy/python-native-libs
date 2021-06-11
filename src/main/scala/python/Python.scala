@@ -19,9 +19,9 @@ class Python private (
 
   private val pathSeparator = if (isWindows) ";" else File.pathSeparator
 
-  def existsInPath(exec: String): Boolean = path
+  private def existsInPath(exec: String): Boolean = path
     .split(pathSeparator)
-    .toStream
+    .to(LazyList)
     .map(fs.getPath(_))
     .exists(path => Files.exists(path.resolve(exec)))
 
@@ -36,21 +36,25 @@ class Python private (
       )
   )
 
-  lazy val interp: Try[String] =
+  private lazy val interp: Try[String] =
     interpreter.map(Success(_)).getOrElse(python)
 
-  private def callPython(cmd: String): Try[String] =
-    interp.flatMap(python => callProcess0(Seq(python, "-c", cmd)))
+  private def callPython(cmd: String*): Try[String] =
+    interp.flatMap(python => callProcess0(Seq(python, "-c", cmd.mkString(";"))))
 
   private def ldversion: Try[String] =
     callPython("import sysconfig;print(sysconfig.get_config_var('LDVERSION'))")
 
   lazy val nativeLibraryPaths: Try[Seq[String]] =
-    callPython("import sys;print(sys.exec_prefix)")
-      .map(_ + "/lib")
-      .map(Seq(_))
+    callPython(
+      "import sys",
+      "import sysconfig",
+      "print(sysconfig.get_config_var('LIBPL') + ';')",
+      "print(sys.prefix + '/lib;')",
+      "print(sys.exec_prefix + '/lib;')"
+    ).map(_.split(";")).map(_.map(_.trim).distinct)
 
-  lazy val nativeLibrary = ldversion.map("python" + _)
+  lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
   def scalaPyProperties: Try[Map[String, String]] = for {
     nativeLibPaths <- nativeLibraryPaths
@@ -58,10 +62,11 @@ class Python private (
   } yield {
     val currentPathsStr = Properties.propOrEmpty("jna.library.path")
     val currentPaths = currentPathsStr.split(pathSeparator)
-    val pathsToAdd = nativeLibPaths.diff(currentPaths)
-    val newPaths = pathsToAdd.mkString(pathSeparator) +
-      (if (currentPathsStr == "") "" else pathSeparator) +
-      currentPathsStr
+    val pathsToAdd =
+      if (currentPaths.containsSlice(nativeLibPaths)) Nil else nativeLibPaths
+    val newPaths =
+      pathsToAdd.mkString(pathSeparator) +
+      (if (currentPathsStr == "") "" else pathSeparator + currentPathsStr)
 
     Map("jna.library.path" -> newPaths, "scalapy.python.library" -> library)
   }
