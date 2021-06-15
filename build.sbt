@@ -1,6 +1,5 @@
 import Dependencies._
 
-// ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "ai.kien"
 
 lazy val scala212 = "2.12.14"
