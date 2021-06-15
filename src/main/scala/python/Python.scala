@@ -66,7 +66,7 @@ class Python private (
       if (currentPaths.containsSlice(nativeLibPaths)) Nil else nativeLibPaths
     val newPaths =
       pathsToAdd.mkString(pathSeparator) +
-      (if (currentPathsStr == "") "" else pathSeparator + currentPathsStr)
+        (if (currentPathsStr.isEmpty) "" else pathSeparator + currentPathsStr)
 
     Map("jna.library.path" -> newPaths, "scalapy.python.library" -> library)
   }
