@@ -12,7 +12,7 @@ lazy val root = (project in file("."))
     name := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213),
     libraryDependencies ++= Seq(
-      scalalCollectionCompat,
+      scalaCollectionCompat,
       scalaTest % Test,
       jimfs % Test
     ),
