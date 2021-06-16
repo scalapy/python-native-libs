@@ -10,7 +10,9 @@ ThisBuild / scalaVersion := scala213
 lazy val root = (project in file("."))
   .settings(
     name := "Python Native Libs",
+    crossScalaVersions := Seq(scala212, scala213),
     libraryDependencies ++= Seq(
+      scalalCollectionCompat,
       scalaTest % Test,
       jimfs % Test
     ),
@@ -21,7 +23,6 @@ lazy val root = (project in file("."))
 lazy val docs = project
   .in(file("python-docs"))
   .settings(
-    crossScalaVersions := Seq(scala212, scala213),
     mdocVariables := Map(
       "VERSION" -> version.value
     )

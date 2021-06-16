@@ -2,6 +2,7 @@ package ai.kien.python
 
 import java.io.{File, FileNotFoundException}
 import java.nio.file.{FileSystem, FileSystems, Files}
+import scala.collection.compat.immutable.LazyList
 import scala.sys
 import scala.sys.process.Process
 import scala.util.{Properties, Success, Try}
