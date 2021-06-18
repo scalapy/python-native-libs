@@ -53,7 +53,7 @@ class Python private (
       "print(sysconfig.get_config_var('LIBPL') + ';')",
       "print(sys.prefix + '/lib;')",
       "print(sys.exec_prefix + '/lib;')"
-    ).map(_.split(";")).map(_.map(_.trim).distinct)
+    ).map(_.split(";")).map(_.map(_.trim).distinct.toSeq)
 
   lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
