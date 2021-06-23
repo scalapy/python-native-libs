@@ -7,18 +7,18 @@ import scala.sys
 import scala.sys.process.Process
 import scala.util.{Properties, Success, Try}
 
-class Python private (
-    interpreter: Option[String],
-    callProcess: Seq[(String, String)] => Seq[String] => Try[String],
-    env: Map[String, String],
-    fs: FileSystem,
-    isWindows: Boolean
+class Python private[python] (
+    interpreter: Option[String] = None,
+    callProcess: Seq[(String, String)] => Seq[String] => Try[String] = Python.callProcess,
+    env: Map[String, String] = sys.env,
+    fs: FileSystem = FileSystems.getDefault,
+    isWindows: Option[Boolean] = None
 ) {
   private val callProcess0 = callProcess(env.toSeq) andThen (_.map(_.trim))
 
   private val path: String = env.get("PATH").getOrElse("")
 
-  private val pathSeparator = if (isWindows) ";" else File.pathSeparator
+  private val pathSeparator = isWindows.map(if (_) ";" else ":").getOrElse(File.pathSeparator)
 
   private def existsInPath(exec: String): Boolean = path
     .split(pathSeparator)
@@ -40,51 +40,56 @@ class Python private (
   private lazy val interp: Try[String] =
     interpreter.map(Success(_)).getOrElse(python)
 
-  private def callPython(cmd: String*): Try[String] =
-    interp.flatMap(python => callProcess0(Seq(python, "-c", cmd.mkString(";"))))
+  private def callPython(cmd: String): Try[String] =
+    interp.flatMap(python => callProcess0(Seq(python, "-c", cmd)))
 
-  private def ldversion: Try[String] =
-    callPython("import sysconfig;print(sysconfig.get_config_var('LDVERSION'))")
+  private def ldversion: Try[String] = callPython(Python.ldversionCmd)
 
   lazy val nativeLibraryPaths: Try[Seq[String]] =
-    callPython(
-      "import sys",
-      "import sysconfig",
-      "print(sysconfig.get_config_var('LIBPL') + ';')",
-      "print(sys.prefix + '/lib;')",
-      "print(sys.exec_prefix + '/lib;')"
-    ).map(_.split(";")).map(_.map(_.trim).distinct.toSeq)
+    callPython(Python.libPathCmd)
+      .map(_.split(";"))
+      .map(_.map(_.trim).distinct.filter(_.nonEmpty).toSeq)
 
   lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
-  def scalaPyProperties: Try[Map[String, String]] = for {
+  def scalapyProperties: Try[Map[String, String]] = for {
     nativeLibPaths <- nativeLibraryPaths
-    library <- nativeLibrary
+    library        <- nativeLibrary
   } yield {
     val currentPathsStr = Properties.propOrEmpty("jna.library.path")
-    val currentPaths = currentPathsStr.split(pathSeparator)
+    val currentPaths    = currentPathsStr.split(pathSeparator)
+
     val pathsToAdd =
       if (currentPaths.containsSlice(nativeLibPaths)) Nil else nativeLibPaths
-    val newPaths =
-      pathsToAdd.mkString(pathSeparator) +
-        (if (currentPathsStr.isEmpty) "" else pathSeparator + currentPathsStr)
+    val pathsToAddStr = pathsToAdd.mkString(pathSeparator)
+
+    val newPaths = (currentPathsStr, pathsToAddStr) match {
+      case (c, p) if c.isEmpty => p
+      case (c, p) if p.isEmpty => c
+      case (c, p)              => s"$p$pathSeparator$c"
+    }
 
     Map("jna.library.path" -> newPaths, "scalapy.python.library" -> library)
   }
 }
 
 object Python {
+  def apply(interpreter: Option[String] = None): Python =
+    new Python(interpreter, callProcess)
+
+  def apply(interpreter: String): Python = apply(Some(interpreter))
+
   private def callProcess(env: Seq[(String, String)])(cmd: Seq[String]) =
     Try(Process(cmd, None, env: _*).!!)
 
-  def apply(interpreter: Option[String] = None): Python =
-    new Python(
-      interpreter,
-      callProcess,
-      sys.env,
-      FileSystems.getDefault(),
-      false
-    )
+  private val ldversionCmd =
+    "import sysconfig;print(sysconfig.get_config_var('LDVERSION'))"
 
-  def apply(interpreter: String): Python = apply(Some(interpreter))
+  private val libPathCmd = Seq(
+    "import sys",
+    "import sysconfig",
+    "print(sysconfig.get_config_var('LIBPL') + ';')",
+    "print(sys.prefix + '/lib;')",
+    "print(sys.exec_prefix + '/lib;')"
+  ).mkString(";")
 }
