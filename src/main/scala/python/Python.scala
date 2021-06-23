@@ -82,10 +82,10 @@ object Python {
   private def callProcess(env: Seq[(String, String)])(cmd: Seq[String]) =
     Try(Process(cmd, None, env: _*).!!)
 
-  private val ldversionCmd =
+  private def ldversionCmd =
     "import sysconfig;print(sysconfig.get_config_var('LDVERSION'))"
 
-  private val libPathCmd = Seq(
+  private def libPathCmd = Seq(
     "import sys",
     "import sysconfig",
     "print(sysconfig.get_config_var('LIBPL') + ';')",
