@@ -1,7 +1,7 @@
 ## Installation
 
 ```scala
-libraryDependencies += "ai.kien" %% "python-native-libs" % "0.1.0-SNAPSHOT"
+libraryDependencies += "ai.kien" %% "python-native-libs" % "0.1.0"
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ python.nativeLibraryPaths
 //   )
 // )
 
-python.scalaPyProperties
+python.scalapyProperties
 // res2: util.Try[Map[String, String]] = Success(
 //   value = Map(
 //     "jna.library.path" -> "/Users/kien/.pyenv/versions/3.9.0/lib/python3.9/config-3.9-darwin:/Users/kien/.pyenv/versions/3.9.0/lib",
@@ -45,7 +45,7 @@ python.nativeLibraryPaths
 //   )
 // )
 
-python.scalaPyProperties
+python.scalapyProperties
 // res5: util.Try[Map[String, String]] = Success(
 //   value = Map(
 //     "jna.library.path" -> "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin:/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib",

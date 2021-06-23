@@ -15,7 +15,7 @@ python.nativeLibrary
 
 python.nativeLibraryPaths
 
-python.scalaPyProperties
+python.scalapyProperties
 ```
 
 ```scala mdoc:nest
@@ -25,5 +25,5 @@ python.nativeLibrary
 
 python.nativeLibraryPaths
 
-python.scalaPyProperties
+python.scalapyProperties
 ```
