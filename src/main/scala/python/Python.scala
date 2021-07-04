@@ -83,7 +83,7 @@ object Python {
     Try(Process(cmd, None, env: _*).!!)
 
   private def ldversionCmd =
-    "import sysconfig;print(sysconfig.get_config_var('LDVERSION'))"
+    "import sys,sysconfig;print(sysconfig.get_python_version() + sys.abiflags)"
 
   private def libPathCmd = Seq(
     "import sys",
