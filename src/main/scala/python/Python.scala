@@ -87,9 +87,7 @@ object Python {
 
   private def libPathCmd = Seq(
     "import sys",
-    "import sysconfig",
-    "print(sysconfig.get_config_var('LIBPL') + ';')",
-    "print(sys.prefix + '/lib;')",
-    "print(sys.exec_prefix + '/lib;')"
+    "from sysconfig import get_config_var",
+    "print(sys.base_prefix + '/libs' if get_config_var('Py_ENABLE_SHARED') == '1' else get_config_var('LIBPL'))"
   ).mkString(";")
 }
