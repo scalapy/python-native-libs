@@ -52,9 +52,12 @@ class Python private[python] (
 
   lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
+  lazy val executable: Try[String] = callPython(Python.executableCmd)
+
   def scalapyProperties: Try[Map[String, String]] = for {
     nativeLibPaths <- nativeLibraryPaths
     library        <- nativeLibrary
+    executable     <- executable
   } yield {
     val currentPathsStr = Properties.propOrEmpty("jna.library.path")
     val currentPaths    = currentPathsStr.split(pathSeparator)
@@ -69,7 +72,11 @@ class Python private[python] (
       case (c, p)              => s"$p$pathSeparator$c"
     }
 
-    Map("jna.library.path" -> newPaths, "scalapy.python.library" -> library)
+    Map(
+      "jna.library.path"           -> newPaths,
+      "scalapy.python.library"     -> library,
+      "scalapy.python.programname" -> executable
+    )
   }
 }
 
@@ -81,6 +88,8 @@ object Python {
 
   private def callProcess(env: Seq[(String, String)])(cmd: Seq[String]) =
     Try(Process(cmd, None, env: _*).!!)
+
+  private def executableCmd = "import sys;print(sys.executable)"
 
   private def ldversionCmd =
     "import sys,sysconfig;print(sysconfig.get_python_version() + sys.abiflags)"

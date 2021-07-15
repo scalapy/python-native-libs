@@ -7,17 +7,22 @@ import com.google.common.jimfs.{Configuration, Jimfs}
 import scala.util.{Properties, Success, Try}
 
 class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with BeforeAndAfter {
-  val ldversionCmd = Python invokePrivate PrivateMethod[String](Symbol("ldversionCmd"))()
-  val libPathCmd   = Python invokePrivate PrivateMethod[String](Symbol("libPathCmd"))()
+  val ldversionCmd  = Python invokePrivate PrivateMethod[String](Symbol("ldversionCmd"))()
+  val libPathCmd    = Python invokePrivate PrivateMethod[String](Symbol("libPathCmd"))()
+  val executableCmd = Python invokePrivate PrivateMethod[String](Symbol("executableCmd"))()
 
-  val ldversion   = "3.9"
-  val prefix      = "/usr/local/lib"
-  val exec_prefix = "/home/user/.share/local/lib"
-  val libpl       = s"$exec_prefix/python$ldversion/config-$ldversion"
+  val ldversion        = "3.9"
+  val base_prefix      = "/usr/local"
+  val base_exec_prefix = "/usr/local"
+  val prefix           = "/home/user/.envs/env"
+  val exec_prefix      = "/home/user/.envs/env"
+  val libpl            = s"$base_exec_prefix/python$ldversion/config-$ldversion"
+  val executable       = s"$prefix/bin/python"
 
   val mockCmdResults = Map(
-    ldversionCmd -> "3.9",
-    libPathCmd   -> Seq(libpl, exec_prefix, prefix).mkString(";")
+    ldversionCmd  -> "3.9",
+    libPathCmd    -> Seq(libpl, base_prefix).mkString(";"),
+    executableCmd -> executable
   )
 
   def callProcess(env: Seq[(String, String)])(cmd: Seq[String]): Try[String] = Success {
@@ -30,9 +35,10 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
 
   val fs = Jimfs.newFileSystem(Configuration.unix)
 
-  val presetProperties = Seq("jna.library.path", "scalapy.python.library")
-    .map(p => p -> Properties.propOrNone(p))
-    .toMap
+  val presetProperties =
+    Seq("jna.library.path", "scalapy.python.library", "scalapy.python.programname")
+      .map(p => p -> Properties.propOrNone(p))
+      .toMap
 
   after {
     presetProperties.foreach {
@@ -42,7 +48,8 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
   }
 
   "Python" should "produce correct properties" in {
-    Seq("jna.library.path", "scalapy.python.library").foreach(Properties.clearProp(_))
+    Seq("jna.library.path", "scalapy.python.library", "scalapy.python.programname")
+      .foreach(Properties.clearProp(_))
 
     val python = new Python(
       interpreter = Some("python"),
@@ -53,23 +60,28 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
     )
 
     val expectedLDLibrary = s"python$ldversion"
-    val expectedLibPaths  = Seq(libpl, exec_prefix, prefix)
+    val expectedLibPaths  = Seq(libpl, base_prefix)
+    val expectedExe       = executable
     val expectedProps = Map(
-      "jna.library.path"       -> expectedLibPaths.mkString(":"),
-      "scalapy.python.library" -> expectedLDLibrary
+      "jna.library.path"           -> expectedLibPaths.mkString(":"),
+      "scalapy.python.library"     -> expectedLDLibrary,
+      "scalapy.python.programname" -> expectedExe
     )
 
     python.nativeLibrary.get should equal(expectedLDLibrary)
     python.nativeLibraryPaths.get should equal(expectedLibPaths)
+    python.executable.get should equal(expectedExe)
     python.scalapyProperties.get should equal(expectedProps)
   }
 
   it should "be idempotent" in {
     val expectedLDLibrary = s"python$ldversion"
-    val expectedLibPaths  = Seq(libpl, exec_prefix, prefix)
+    val expectedLibPaths  = Seq(libpl, base_prefix)
+    val expectedExe       = executable
     val expectedProps = Map(
-      "jna.library.path"       -> expectedLibPaths.mkString(":"),
-      "scalapy.python.library" -> expectedLDLibrary
+      "jna.library.path"           -> expectedLibPaths.mkString(":"),
+      "scalapy.python.library"     -> expectedLDLibrary,
+      "scalapy.python.programname" -> expectedExe
     )
 
     expectedProps.foreach { case (k, v) => Properties.setProp(k, v) }
