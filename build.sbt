@@ -1,4 +1,7 @@
 import Dependencies._
+import com.typesafe.sbt.SbtGit.git
+import java.nio.file.{Files, Paths}
+import java.io.File
 
 inThisBuild(
   List(
@@ -39,7 +42,9 @@ lazy val docs = project
   .in(file("python-docs"))
   .settings(
     mdocVariables := Map(
-      "VERSION" -> version.value
+      "VERSION"         -> version.value,
+      "SCALAPY_VERSION" -> "0.5.0",
+      "PYTHON"          -> "/usr/bin/python3"
     )
   )
   .dependsOn(root)
