@@ -29,7 +29,7 @@ We went with the 2nd method since it is more portable.
 
 ## `jna.library.path`/`nativeLibraryPaths`
 
-The directory where the Python shared library lives. It is located in either `sys.base_prefix` or config dir `sysconfig.get_config_var('LIBPL')`. For each Python installation, which one of these 2 directories actually contains the shared library is almost arbitrary. We decided to just use both with priority given to the config dir `f"{sysconfig.get_config_var('LIBPL')}:{sys.base_prefix}"`.
+The directory where the Python shared library lives. It is located in either `f"{sys.base_prefix}/lib"` or config dir `sysconfig.get_config_var('LIBPL')`. For each Python installation, which one of these 2 directories actually contains the shared library is almost arbitrary. We decided to just use both with priority given to the config dir `f"{sysconfig.get_config_var('LIBPL')}:{sys.base_prefix}/lib"`.
 
 ## `scalapy.python.programname`/`executable`
 
