@@ -42,7 +42,7 @@ lazy val docs = project
   .in(file("python-docs"))
   .settings(
     mdocVariables := Map(
-      "VERSION"         -> version.value,
+      "VERSION"         -> "0.1.2",
       "SCALAPY_VERSION" -> "0.5.0",
       "PYTHON"          -> "/usr/bin/python3"
     )

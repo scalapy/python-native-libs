@@ -5,7 +5,7 @@ The canonical use case is to help set up [`ScalaPy`](https://scalapy.dev/) to po
 ## Installation
 
 ```scala
-libraryDependencies += "ai.kien" %% "python-native-libs" % "0.1.1"
+libraryDependencies += "ai.kien" %% "python-native-libs" % "0.1.2"
 ```
 
 ## Usage
@@ -68,7 +68,7 @@ See `docs/details.md` to see the full list of these properties and what they mea
 `scalapyProperties` contains the system properties used by `ScalaPy`. For example, to set up `ScalaPy` to use the Python located at `/usr/bin/python3` in [`Ammonite`](https://ammonite.io/) or [`Almond`](https://almond.sh/) run
 
 ```scala
-import $ivy.`ai.kien::python-native-libs:0.1.1`
+import $ivy.`ai.kien::python-native-libs:0.1.2`
 import ai.kien.python.Python
 
 Python("/usr/bin/python3").scalapyProperties.fold(
