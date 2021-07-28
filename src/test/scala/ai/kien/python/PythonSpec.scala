@@ -2,15 +2,11 @@ package ai.kien.python
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfter, PrivateMethodTester}
+import org.scalatest.{BeforeAndAfter}
 import com.google.common.jimfs.{Configuration, Jimfs}
 import scala.util.{Properties, Success, Try}
 
-class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with BeforeAndAfter {
-  val ldversionCmd  = Python invokePrivate PrivateMethod[String](Symbol("ldversionCmd"))()
-  val libPathCmd    = Python invokePrivate PrivateMethod[String](Symbol("libPathCmd"))()
-  val executableCmd = Python invokePrivate PrivateMethod[String](Symbol("executableCmd"))()
-
+class PythonSpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
   val ldversion        = "3.9"
   val base_prefix      = "/usr/local"
   val base_exec_prefix = "/usr/local"
@@ -20,9 +16,9 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
   val executable       = s"$prefix/bin/python"
 
   val mockCmdResults = Map(
-    ldversionCmd  -> "3.9",
-    libPathCmd    -> Seq(libpl, base_prefix).mkString(";"),
-    executableCmd -> executable
+    Python.ldversionCmd  -> "3.9",
+    Python.libPathCmd    -> Seq(libpl, base_prefix).mkString(";"),
+    Python.executableCmd -> executable
   )
 
   def callProcess(cmd: Seq[String]): Try[String] = Success {
@@ -51,7 +47,7 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
     Seq("jna.library.path", "scalapy.python.library", "scalapy.python.programname")
       .foreach(Properties.clearProp(_))
 
-    val python = new Python(
+    val python = new Python.PythonImpl(
       interpreter = Some("python"),
       callProcess = callProcess,
       getEnv = Map.empty.get,
@@ -86,7 +82,7 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
 
     expectedProps.foreach { case (k, v) => Properties.setProp(k, v) }
 
-    val python = new Python(
+    val python = new Python.PythonImpl(
       interpreter = Some("python"),
       callProcess = callProcess,
       getEnv = Map.empty.get,
