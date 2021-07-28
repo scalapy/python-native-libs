@@ -16,7 +16,7 @@ By default `Python` checks for the `python3` executable (or `python` if `python3
 import ai.kien.python.Python
 
 val python = Python()
-// python: Python = ai.kien.python.Python@13c77ae8
+// python: Python = ai.kien.python.Python@59f72d34
 
 python.nativeLibrary
 // res0: util.Try[String] = Success(value = "python3.7m")
@@ -37,28 +37,58 @@ python.scalapyProperties
 //     "scalapy.python.programname" -> "/home/kien/.pyenv/versions/3.7.2/bin/python3"
 //   )
 // )
+
+python.ldflags
+// res3: util.Try[Seq[String]] = Success(
+//   value = ArraySeq(
+//     "-L/home/kien/.pyenv/versions/3.7.2/lib/python3.7/config-3.7m-x86_64-linux-gnu",
+//     "-L/home/kien/.pyenv/versions/3.7.2/lib",
+//     "-lpython3.7m",
+//     "-lpthread",
+//     "-ldl",
+//     "-lutil",
+//     "-lm",
+//     "-Xlinker",
+//     "-export-dynamic"
+//   )
+// )
 ```
 
 You can point it towards a specific Python installation by passing the path to the interpreter executable to `Python`
 
 ```scala
 val python = Python("/usr/bin/python3")
-// python: Python = ai.kien.python.Python@165337e
+// python: Python = ai.kien.python.Python@4fded021
 
 python.nativeLibrary
-// res3: util.Try[String] = Success(value = "python3.8")
+// res4: util.Try[String] = Success(value = "python3.8")
 
 python.nativeLibraryPaths
-// res4: util.Try[Seq[String]] = Success(
+// res5: util.Try[Seq[String]] = Success(
 //   value = ArraySeq("/usr/lib/python3.8/config-3.8-x86_64-linux-gnu", "/usr/lib")
 // )
 
 python.scalapyProperties
-// res5: util.Try[Map[String, String]] = Success(
+// res6: util.Try[Map[String, String]] = Success(
 //   value = Map(
 //     "jna.library.path" -> "/usr/lib/python3.8/config-3.8-x86_64-linux-gnu:/usr/lib",
 //     "scalapy.python.library" -> "python3.8",
 //     "scalapy.python.programname" -> "/usr/bin/python3"
+//   )
+// )
+
+python.ldflags
+// res7: util.Try[Seq[String]] = Success(
+//   value = ArraySeq(
+//     "-L/usr/lib/python3.8/config-3.8-x86_64-linux-gnu",
+//     "-L/usr/lib",
+//     "-lpython3.8",
+//     "-lcrypt",
+//     "-lpthread",
+//     "-ldl",
+//     "-lutil",
+//     "-lm",
+//     "-lm"
 //   )
 // )
 ```

@@ -22,6 +22,8 @@ python.nativeLibrary
 python.nativeLibraryPaths
 
 python.scalapyProperties
+
+python.ldflags
 ```
 
 You can point it towards a specific Python installation by passing the path to the interpreter executable to `Python`
@@ -34,6 +36,8 @@ python.nativeLibrary
 python.nativeLibraryPaths
 
 python.scalapyProperties
+
+python.ldflags
 ```
 
 See `docs/details.md` to see the full list of these properties and what they mean.

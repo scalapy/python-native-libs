@@ -12,6 +12,7 @@ trait Python {
   def nativeLibraryPaths: Try[Seq[String]]
   def executable: Try[String]
   def scalapyProperties: Try[Map[String, String]]
+  def ldflags: Try[Seq[String]]
 }
 
 object Python {
@@ -63,6 +64,30 @@ object Python {
     lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
     lazy val executable: Try[String] = callPython(Python.executableCmd)
+
+    lazy val binDir = callPython("import sysconfig;print(sysconfig.get_path('scripts'))")
+
+    lazy val pythonConfigExecutable = for {
+      binDir    <- binDir
+      ldversion <- ldversion
+      pythonConfigExecutable = s"${binDir}${fs.getSeparator}python${ldversion}-config"
+      _ <- Try {
+        if (!Files.exists(fs.getPath(pythonConfigExecutable)))
+          throw new FileNotFoundException(s"$pythonConfigExecutable does not exist")
+        else ()
+      }
+    } yield pythonConfigExecutable
+
+    lazy val pythonConfig = pythonConfigExecutable.map(new PythonConfig(_, callProcess))
+
+    lazy val rawLdflags = pythonConfig.flatMap(_.ldflags)
+
+    lazy val ldflags = for {
+      rawLdflags         <- rawLdflags
+      nativeLibraryPaths <- nativeLibraryPaths
+      libPathFlags = nativeLibraryPaths.map("-L" + _)
+      flags        = rawLdflags.split("\\s").filter(f => f.nonEmpty && !libPathFlags.contains(f))
+    } yield libPathFlags ++ flags
 
     def scalapyProperties: Try[Map[String, String]] = for {
       nativeLibPaths <- nativeLibraryPaths
