@@ -25,7 +25,7 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
     executableCmd -> executable
   )
 
-  def callProcess(env: Seq[(String, String)])(cmd: Seq[String]): Try[String] = Success {
+  def callProcess(cmd: Seq[String]): Try[String] = Success {
     val cmd0 = cmd.mkString(" ")
     mockCmdResults
       .find { case (k, _) => cmd0.contains(k) }
@@ -54,7 +54,7 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
     val python = new Python(
       interpreter = Some("python"),
       callProcess = callProcess,
-      env = Map.empty,
+      getEnv = Map.empty.get,
       fs = fs,
       isWindows = Some(false)
     )
@@ -89,7 +89,7 @@ class PythonSpec extends AnyFlatSpec with Matchers with PrivateMethodTester with
     val python = new Python(
       interpreter = Some("python"),
       callProcess = callProcess,
-      env = Map.empty,
+      getEnv = Map.empty.get,
       fs = fs,
       isWindows = Some(false)
     )

@@ -9,14 +9,12 @@ import scala.util.{Properties, Success, Try}
 
 class Python private[python] (
     interpreter: Option[String] = None,
-    callProcess: Seq[(String, String)] => Seq[String] => Try[String] = Python.callProcess,
-    env: Map[String, String] = sys.env,
+    callProcess: Seq[String] => Try[String] = Defaults.callProcess,
+    getEnv: String => Option[String] = Defaults.getEnv,
     fs: FileSystem = FileSystems.getDefault,
     isWindows: Option[Boolean] = None
 ) {
-  private val callProcess0 = callProcess(env.toSeq) andThen (_.map(_.trim))
-
-  private val path: String = env.get("PATH").getOrElse("")
+  private val path: String = getEnv("PATH").getOrElse("")
 
   private val pathSeparator = isWindows.map(if (_) ";" else ":").getOrElse(File.pathSeparator)
 
@@ -41,7 +39,7 @@ class Python private[python] (
     interpreter.map(Success(_)).getOrElse(python)
 
   private def callPython(cmd: String): Try[String] =
-    interp.flatMap(python => callProcess0(Seq(python, "-c", cmd)))
+    interp.flatMap(python => callProcess(Seq(python, "-c", cmd)))
 
   private def ldversion: Try[String] = callPython(Python.ldversionCmd)
 
@@ -81,13 +79,11 @@ class Python private[python] (
 }
 
 object Python {
-  def apply(interpreter: Option[String] = None): Python =
-    new Python(interpreter, callProcess)
+  def apply(interpreter: Option[String] = None): Python = new Python(interpreter)
 
   def apply(interpreter: String): Python = apply(Some(interpreter))
 
-  private def callProcess(env: Seq[(String, String)])(cmd: Seq[String]) =
-    Try(Process(cmd, None, env: _*).!!)
+  private def callProcess(cmd: Seq[String]) = Try(Process(cmd).!!)
 
   private def executableCmd = "import sys;print(sys.executable)"
 
