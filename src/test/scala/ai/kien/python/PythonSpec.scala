@@ -1,9 +1,10 @@
 package ai.kien.python
 
+import com.google.common.jimfs.{Configuration, Jimfs}
+import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfter}
-import com.google.common.jimfs.{Configuration, Jimfs}
+
 import scala.util.{Properties, Success, Try}
 
 class PythonSpec extends AnyFlatSpec with Matchers with BeforeAndAfter {

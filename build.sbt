@@ -25,6 +25,14 @@ lazy val scala3   = "3.0.0"
 
 ThisBuild / scalaVersion := scala213
 
+ThisBuild / scalafixDependencies += organizeImports
+
+def warnUnusedImports(scalaVersion: String) =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, _)) => Seq("-Xlint:unused")
+    case _            => Nil
+  }
+
 lazy val root = (project in file("."))
   .settings(
     name := "Python Native Libs",
@@ -35,7 +43,10 @@ lazy val root = (project in file("."))
       jimfs     % Test
     ),
     sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalacOptions ++= warnUnusedImports(scalaVersion.value)
   )
 
 lazy val docs = project
