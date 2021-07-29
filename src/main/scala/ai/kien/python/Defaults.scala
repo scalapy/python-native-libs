@@ -1,7 +1,7 @@
 package ai.kien.python
 
-import scala.util.Try
 import scala.sys.process.Process
+import scala.util.Try
 
 private[python] object Defaults {
   def callProcess(cmd: Seq[String]) = Try(Process(cmd).!!.trim)
