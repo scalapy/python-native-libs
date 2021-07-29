@@ -5,7 +5,7 @@ The canonical use case is to help set up [`ScalaPy`](https://scalapy.dev/) to po
 ## Installation
 
 ```scala
-libraryDependencies += "ai.kien" %% "python-native-libs" % "0.1.2"
+libraryDependencies += "ai.kien" %% "python-native-libs" % "0.1.3"
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ By default `Python` checks for the `python3` executable (or `python` if `python3
 import ai.kien.python.Python
 
 val python = Python()
-// python: Python = ai.kien.python.Python@13c77ae8
+// python: Python = ai.kien.python.Python$PythonImpl@263210b
 
 python.nativeLibrary
 // res0: util.Try[String] = Success(value = "python3.7m")
@@ -43,7 +43,7 @@ You can point it towards a specific Python installation by passing the path to t
 
 ```scala
 val python = Python("/usr/bin/python3")
-// python: Python = ai.kien.python.Python@165337e
+// python: Python = ai.kien.python.Python$PythonImpl@123687f
 
 python.nativeLibrary
 // res3: util.Try[String] = Success(value = "python3.8")
@@ -68,7 +68,7 @@ See `docs/details.md` to see the full list of these properties and what they mea
 `scalapyProperties` contains the system properties used by `ScalaPy`. For example, to set up `ScalaPy` to use the Python located at `/usr/bin/python3` in [`Ammonite`](https://ammonite.io/) or [`Almond`](https://almond.sh/) run
 
 ```scala
-import $ivy.`ai.kien::python-native-libs:0.1.2`
+import $ivy.`ai.kien::python-native-libs:0.1.3`
 import ai.kien.python.Python
 
 Python("/usr/bin/python3").scalapyProperties.fold(
