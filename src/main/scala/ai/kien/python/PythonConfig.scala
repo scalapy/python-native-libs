@@ -1,8 +1,6 @@
 package ai.kien.python
 
-import java.nio.file.{FileSystem, FileSystems}
-import scala.sys
-import scala.util.{Try, Success, Failure}
+import scala.util.Try
 
 private[python] class PythonConfig(
     pythonConfig: String,
