@@ -1,7 +1,4 @@
 import Dependencies._
-import com.typesafe.sbt.SbtGit.git
-import java.nio.file.{Files, Paths}
-import java.io.File
 
 inThisBuild(
   List(
@@ -23,7 +20,9 @@ lazy val scala212 = "2.12.14"
 lazy val scala213 = "2.13.6"
 lazy val scala3   = "3.0.0"
 
-ThisBuild / scalaVersion := scala213
+lazy val enableScripted = Option(sys.props("plugin.ci")).map(_.trim.nonEmpty).getOrElse(false)
+
+ThisBuild / scalaVersion := (if (enableScripted) scala212 else scala213)
 
 ThisBuild / scalafixDependencies += organizeImports
 
@@ -33,7 +32,27 @@ def warnUnusedImports(scalaVersion: String) =
     case _            => Nil
   }
 
+def scriptedPlugin = if (enableScripted) Seq(ScriptedPlugin) else Nil
+
+def scriptedSettings = if (enableScripted) {
+  Seq(
+    scriptedLaunchOpts := {
+      scriptedLaunchOpts.value ++ {
+        Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
+          Option(sys.props("plugin.python.executable"))
+            .map("-Dplugin.python.executable=" + _)
+            .toSeq ++
+          Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+      }
+    },
+    scriptedBufferLog := false
+  )
+} else Nil
+
+lazy val scalapyVersion = Option(sys.props("plugin.scalapy.version")).map(_.trim).getOrElse("0.5.0")
+
 lazy val root = (project in file("."))
+  .enablePlugins(scriptedPlugin: _*)
   .settings(
     name := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213, scala3),
@@ -48,13 +67,14 @@ lazy val root = (project in file("."))
     semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions ++= warnUnusedImports(scalaVersion.value)
   )
+  .settings(scriptedSettings)
 
 lazy val docs = project
   .in(file("python-docs"))
   .settings(
     mdocVariables := Map(
       "VERSION"         -> "0.1.3",
-      "SCALAPY_VERSION" -> "0.5.0",
+      "SCALAPY_VERSION" -> scalapyVersion,
       "PYTHON"          -> "/usr/bin/python3"
     )
   )

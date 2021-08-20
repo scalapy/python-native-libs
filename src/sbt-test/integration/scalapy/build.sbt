@@ -6,10 +6,10 @@ lazy val scala3   = "3.0.0"
 
 ThisBuild / scalaVersion := scala213
 
-lazy val scalapyVersion = System.getenv("CI_SCALAPY_VERSION")
+lazy val scalapyVersion = sys.props("plugin.scalapy.version")
 
 lazy val python = Python(
-  Option(System.getenv("CI_PYTHONEXECUTABLE")).filter(_.trim.nonEmpty)
+  Option(sys.props("plugin.python.executable")).filter(_.trim.nonEmpty)
 )
 
 lazy val pythonLdFlags = python.ldflags.get

@@ -14,14 +14,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        jdk: [1.8]
+        jdk: [8]
         python: [3.7, 3.8, 3.9]
     steps:
       - uses: actions/checkout@master
-      - name: Set up JDK ${{ matrix.jdk }}
-        uses: olafurpg/setup-scala@v11
+      - uses: coursier/cache-action@v6.3
+      - uses: coursier/setup-action@v1
         with:
-          java-version: ${{ matrix.jdk }}
+          jvm: ${{ matrix.jdk }}
+          apps: sbtn
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:

@@ -1,12 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 sbt +publishLocal
-
-version=$(sbt -Dsbt.supershell=false -error "print version")
-
-test() {
-  cd .github/project
-  sbt +rootJVM/run +rootNative/run
-}
-
-CI_LIBRARY_VERSION="$version" CI_PYTHONEXECUTABLE="$1" CI_SCALAPY_VERSION="$2" test
+sbt -Dplugin.ci=true -Dplugin.python.executable="$1" -Dplugin.scalapy.version="$2" scripted
