@@ -46,6 +46,15 @@ class Python private[python] (
     )
   }
 
+  lazy val ldflags = for {
+    rawLdflags         <- rawLdflags
+    nativeLibraryPaths <- nativeLibraryPaths
+    libPathFlags = nativeLibraryPaths.map("-L" + _)
+    flags = rawLdflags
+      .split("\\s+(?=-)")
+      .filter(f => f.nonEmpty && !libPathFlags.contains(f))
+  } yield libPathFlags ++ flags
+
   private val path: String = getEnv("PATH").getOrElse("")
 
   private val pathSeparator =
@@ -75,6 +84,23 @@ class Python private[python] (
     interp.flatMap(python => callProcess(Seq(python, "-c", cmd)))
 
   private def ldversion: Try[String] = callPython(Python.ldversionCmd)
+
+  private lazy val binDir = callPython("import sysconfig;print(sysconfig.get_path('scripts'))")
+
+  private lazy val pythonConfigExecutable = for {
+    binDir    <- binDir
+    ldversion <- ldversion
+    pythonConfigExecutable = s"${binDir}${fs.getSeparator}python${ldversion}-config"
+    _ <- Try {
+      if (!Files.exists(fs.getPath(pythonConfigExecutable)))
+        throw new FileNotFoundException(s"$pythonConfigExecutable does not exist")
+      else ()
+    }
+  } yield pythonConfigExecutable
+
+  private lazy val pythonConfig = pythonConfigExecutable.map(new PythonConfig(_, callProcess))
+
+  private lazy val rawLdflags = pythonConfig.flatMap(_.ldflags)
 }
 
 object Python {
