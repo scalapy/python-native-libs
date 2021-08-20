@@ -50,7 +50,9 @@ class Python private[python] (
     rawLdflags         <- rawLdflags
     nativeLibraryPaths <- nativeLibraryPaths
     libPathFlags = nativeLibraryPaths.map("-L" + _)
-    flags        = rawLdflags.split("\\s").filter(f => f.nonEmpty && !libPathFlags.contains(f))
+    flags = rawLdflags
+      .split("\\s+(?=-)")
+      .filter(f => f.nonEmpty && !libPathFlags.contains(f))
   } yield libPathFlags ++ flags
 
   private val path: String = getEnv("PATH").getOrElse("")
