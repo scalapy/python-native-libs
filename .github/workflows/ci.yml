@@ -26,6 +26,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python: ${{ matrix.python }}
-      - name: Test
+      - name: Unit tests
         run: sbt +test
+        shell: bash
+      - name: Integration tests again latest ScalaPy stable
+        run: .github/scripts/integration_test.sh python3 0.5.0
         shell: bash
