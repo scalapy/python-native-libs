@@ -20,7 +20,9 @@ lazy val scala212 = "2.12.14"
 lazy val scala213 = "2.13.6"
 lazy val scala3   = "3.0.0"
 
-lazy val enableScripted = Option(sys.props("plugin.ci")).map(_.trim.nonEmpty).getOrElse(false)
+lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.0")
+
+lazy val enableScripted = getProp("plugin.ci").isDefined
 
 ThisBuild / scalaVersion := (if (enableScripted) scala212 else scala213)
 
@@ -32,6 +34,13 @@ def warnUnusedImports(scalaVersion: String) =
     case _            => Nil
   }
 
+def getProp(p: String) = Option(sys.props(p)).map(_.trim).filter(_.nonEmpty)
+
+def getProps(prop: String*) =
+  prop
+    .map(p => p -> getProp(p))
+    .collect { case (k, Some(v)) => s"""-D$k=$v""" }
+
 def scriptedPlugin = if (enableScripted) Seq(ScriptedPlugin) else Nil
 
 def scriptedSettings = if (enableScripted) {
@@ -39,17 +48,13 @@ def scriptedSettings = if (enableScripted) {
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++ {
         Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
-          Option(sys.props("plugin.python.executable"))
-            .map("-Dplugin.python.executable=" + _)
-            .toSeq ++
+          getProps("plugin.python.executable", "plugin.virtualenv") ++
           Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
       }
     },
     scriptedBufferLog := false
   )
 } else Nil
-
-lazy val scalapyVersion = Option(sys.props("plugin.scalapy.version")).map(_.trim).getOrElse("0.5.0")
 
 lazy val root = (project in file("."))
   .enablePlugins(scriptedPlugin: _*)
