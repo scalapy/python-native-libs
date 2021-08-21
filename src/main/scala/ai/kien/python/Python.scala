@@ -46,13 +46,15 @@ class Python private[python] (
     )
   }
 
-  lazy val ldflags = for {
+  lazy val ldflags: Try[Seq[String]] = for {
     rawLdflags         <- rawLdflags
     nativeLibraryPaths <- nativeLibraryPaths
     libPathFlags = nativeLibraryPaths.map("-L" + _)
     flags = rawLdflags
-      .split("\\s+")
+      .split("\\s+(?=-)")
       .filter(f => f.nonEmpty && !libPathFlags.contains(f))
+      .flatMap(f => if (f.startsWith("-L")) Array(f) else f.split("\\s+"))
+      .toSeq
   } yield libPathFlags ++ flags
 
   private val path: String = getEnv("PATH").getOrElse("")
