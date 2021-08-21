@@ -51,7 +51,7 @@ class Python private[python] (
     nativeLibraryPaths <- nativeLibraryPaths
     libPathFlags = nativeLibraryPaths.map("-L" + _)
     flags = rawLdflags
-      .split("\\s+(?=-)")
+      .split("\\s+")
       .filter(f => f.nonEmpty && !libPathFlags.contains(f))
   } yield libPathFlags ++ flags
 
