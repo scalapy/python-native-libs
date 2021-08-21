@@ -87,7 +87,9 @@ class Python private[python] (
 
   private def ldversion: Try[String] = callPython(Python.ldversionCmd)
 
-  private lazy val binDir = callPython("import sysconfig;print(sysconfig.get_path('scripts'))")
+  private lazy val binDir =
+    callPython("import sys;print(sys.base_prefix)")
+      .map(base => s"${base}${fs.getSeparator}bin")
 
   private lazy val pythonConfigExecutable = for {
     binDir    <- binDir
