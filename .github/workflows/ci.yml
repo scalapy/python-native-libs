@@ -31,5 +31,7 @@ jobs:
         run: sbt +test
         shell: bash
       - name: Integration tests again latest ScalaPy stable
-        run: .github/scripts/integration_test.sh python3 0.5.0
+        run: scripts/integration_test.sh python3 0.5.0
         shell: bash
+      - name: Test virtualenv
+        run: scripts/virtualenv_test.sh 0.5.0+8-7c7a6042

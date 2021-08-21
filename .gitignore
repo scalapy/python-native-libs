@@ -5,5 +5,8 @@ target/
 .bsp/
 .bloop/
 
+__pycache__/
+.ipynb_checkpoints/
+
 .DS_Store
 *.worksheet.sc
