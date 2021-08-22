@@ -78,9 +78,7 @@ lazy val docs = project
   .in(file("python-docs"))
   .settings(
     mdocVariables := Map(
-      "VERSION"         -> "0.2.1",
-      "SCALAPY_VERSION" -> scalapyVersion,
-      "PYTHON"          -> "/usr/bin/python3"
+      "PYTHON" -> "/usr/bin/python3"
     )
   )
   .dependsOn(root)
