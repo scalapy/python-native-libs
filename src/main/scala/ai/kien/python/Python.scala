@@ -5,6 +5,9 @@ import java.nio.file.{FileSystem, FileSystems, Files}
 import scala.collection.compat.immutable.LazyList
 import scala.util.{Properties, Success, Try}
 
+/** A class for extracting the necessary configuration properties for embedding
+  * a specific Python interpreter into an appication
+  */
 class Python private[python] (
     interpreter: Option[String] = None,
     callProcess: Seq[String] => Try[String] = Defaults.callProcess,
@@ -12,15 +15,38 @@ class Python private[python] (
     fs: FileSystem = FileSystems.getDefault,
     isWindows: Option[Boolean] = None
 ) {
+
+  /** Provides a list of possible locations for the `libpython`
+    * corresponding to this Python interpreter
+    */
   lazy val nativeLibraryPaths: Try[Seq[String]] =
     callPython(Python.libPathCmd)
       .map(_.split(";"))
       .map(_.map(_.trim).distinct.filter(_.nonEmpty).toSeq)
 
+  /** Name of the `libpython` corresponding to this Python interpreter,
+    * ''e.g.'' `python3.8`, `python3.7m`
+    */
   lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
+  /** Absolute path to the Python interpreter executable
+    */
   lazy val executable: Try[String] = callPython(Python.executableCmd)
 
+  /** Provides the system properties necessary for setting up
+    * [[https://scalapy.dev/ ScalaPy]] with this Python interpreter
+    *
+    * @example
+    *
+    * {{{
+    * import me.shadaj.scalapy.py
+    *
+    * Python("/usr/local/bin/python3").scalapyProperties.get.foreach {
+    *   case (k, v) => System.setProperty(k, v)
+    * }
+    * println(py.eval("'Hello from Python!'"))
+    * }}}
+    */
   def scalapyProperties: Try[Map[String, String]] = for {
     nativeLibPaths <- nativeLibraryPaths
     library        <- nativeLibrary
@@ -46,6 +72,14 @@ class Python private[python] (
     )
   }
 
+  /** Provides the recommended linker options for embedding this
+    * Python interpreter into another application,
+    * mostly extracted from the outputs of
+    *
+    * `pythonX.Y-config --ldflags` for `python` 3.7 and
+    *
+    * `pythonX.Y-config --ldflags --embed` for `python` 3.8+
+    */
   lazy val ldflags: Try[Seq[String]] = for {
     rawLdflags         <- rawLdflags
     nativeLibraryPaths <- nativeLibraryPaths
@@ -108,8 +142,46 @@ class Python private[python] (
 }
 
 object Python {
+
+  /** @param interpreter optional path to a Python interpreter executable,
+    * which defaults to `Some("python3")` if not provided
+    *
+    * @example
+    *
+    * {{{
+    * val python = Python()
+    * python.scalapyProperties.get.foreach {
+    *   case (k, v) => System.setProperty(k, v)
+    * }
+    *
+    * import me.shadaj.scalapy.py
+    * println(py.eval("'Hello from Python!'"))
+    * }}}
+    *
+    * @return an instance of [[ai.kien.python.Python]] which provides
+    * the necessary configuration properties for embedding a specific
+    * Python interpreter
+    */
   def apply(interpreter: Option[String] = None): Python = new Python(interpreter)
 
+  /** @param interpreter path to a Python interpreter executable
+    *
+    * @example
+    *
+    * {{{
+    * val python = Python("/usr/local/bin/python3")
+    * python.scalapyProperties.get.foreach {
+    *   case (k, v) => System.setProperty(k, v)
+    * }
+    *
+    * import me.shadaj.scalapy.py
+    * println(py.eval("'Hello from Python!'"))
+    * }}}
+    *
+    * @return an instance of [[ai.kien.python.Python]] which provides
+    * the necessary configuration properties for embedding a specific
+    * Python interpreter
+    */
   def apply(interpreter: String): Python = apply(Some(interpreter))
 
   private def executableCmd = "import sys;print(sys.executable)"
