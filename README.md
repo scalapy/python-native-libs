@@ -16,25 +16,37 @@ By default `Python` checks for the `python3` executable (or `python` if `python3
 import ai.kien.python.Python
 
 val python = Python()
-// python: Python = ai.kien.python.Python$PythonImpl@263210b
+// python: Python = ai.kien.python.Python@5eb35f5d
 
 python.nativeLibrary
-// res0: util.Try[String] = Success(value = "python3.7m")
+// res0: util.Try[String] = Success(value = "python3.9")
 
 python.nativeLibraryPaths
 // res1: util.Try[Seq[String]] = Success(
 //   value = ArraySeq(
-//     "/home/kien/.pyenv/versions/3.7.2/lib/python3.7/config-3.7m-x86_64-linux-gnu",
-//     "/home/kien/.pyenv/versions/3.7.2/lib"
+//     "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
+//     "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib"
 //   )
 // )
 
 python.scalapyProperties
 // res2: util.Try[Map[String, String]] = Success(
 //   value = Map(
-//     "jna.library.path" -> "/home/kien/.pyenv/versions/3.7.2/lib/python3.7/config-3.7m-x86_64-linux-gnu:/home/kien/.pyenv/versions/3.7.2/lib",
-//     "scalapy.python.library" -> "python3.7m",
-//     "scalapy.python.programname" -> "/home/kien/.pyenv/versions/3.7.2/bin/python3"
+//     "jna.library.path" -> "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin:/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib",
+//     "scalapy.python.library" -> "python3.9",
+//     "scalapy.python.programname" -> "/usr/local/opt/python@3.9/bin/python3.9"
+//   )
+// )
+
+python.ldflags
+// res3: util.Try[Seq[String]] = Success(
+//   value = ArraySeq(
+//     "-L/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
+//     "-L/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib",
+//     "-lpython3.9",
+//     "-ldl",
+//     "-framework",
+//     "CoreFoundation"
 //   )
 // )
 ```
@@ -43,22 +55,37 @@ You can point it towards a specific Python installation by passing the path to t
 
 ```scala
 val python = Python("/usr/bin/python3")
-// python: Python = ai.kien.python.Python$PythonImpl@123687f
+// python: Python = ai.kien.python.Python@eb0b5d0
 
 python.nativeLibrary
-// res3: util.Try[String] = Success(value = "python3.8")
+// res4: util.Try[String] = Success(value = "python3.9")
 
 python.nativeLibraryPaths
-// res4: util.Try[Seq[String]] = Success(
-//   value = ArraySeq("/usr/lib/python3.8/config-3.8-x86_64-linux-gnu", "/usr/lib")
+// res5: util.Try[Seq[String]] = Success(
+//   value = ArraySeq(
+//     "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
+//     "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib"
+//   )
 // )
 
 python.scalapyProperties
-// res5: util.Try[Map[String, String]] = Success(
+// res6: util.Try[Map[String, String]] = Success(
 //   value = Map(
-//     "jna.library.path" -> "/usr/lib/python3.8/config-3.8-x86_64-linux-gnu:/usr/lib",
-//     "scalapy.python.library" -> "python3.8",
-//     "scalapy.python.programname" -> "/usr/bin/python3"
+//     "jna.library.path" -> "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin:/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib",
+//     "scalapy.python.library" -> "python3.9",
+//     "scalapy.python.programname" -> "/usr/local/opt/python@3.9/bin/python3.9"
+//   )
+// )
+
+python.ldflags
+// res7: util.Try[Seq[String]] = Success(
+//   value = ArraySeq(
+//     "-L/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin",
+//     "-L/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib",
+//     "-lpython3.9",
+//     "-ldl",
+//     "-framework",
+//     "CoreFoundation"
 //   )
 // )
 ```
