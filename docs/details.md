@@ -45,3 +45,17 @@ import sys
 
 sys.executable
 ```
+
+## `ldflags`
+
+The recommended linker options for embedding the Python interpreter into another application, mostly extracted from the outputs of
+
+`pythonX.Y-config --ldflags` for python `3.7` and
+
+`pythonX.Y-config --ldflags --embed` for python `3.8+`,
+
+with added library paths from `nativeLibraryPaths`
+
+https://docs.python.org/3/extending/embedding.html#compiling-and-linking-under-unix-like-systems
+
+The full path to `pythonX.Y-config` is `f"{sys.base_prefix}/bin/python{ldversion}-config"`.
