@@ -191,8 +191,9 @@ object Python {
 
   private def libPathCmd = Seq(
     "import sys",
+    "import os.path",
     "from sysconfig import get_config_var",
     "print(get_config_var('LIBPL') + ';')",
-    "print(sys.base_prefix + '/lib')"
+    "print(os.path.join(sys.base_prefix, 'lib'))"
   ).mkString(";")
 }
