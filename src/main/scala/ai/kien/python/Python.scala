@@ -5,8 +5,8 @@ import java.nio.file.{FileSystem, FileSystems, Files}
 import scala.collection.compat.immutable.LazyList
 import scala.util.{Properties, Success, Try}
 
-/** A class for extracting the necessary configuration properties for embedding
-  * a specific Python interpreter into an appication
+/** A class for extracting the necessary configuration properties for embedding a specific Python
+  * interpreter into an appication
   */
 class Python private[python] (
     interpreter: Option[String] = None,
@@ -16,16 +16,16 @@ class Python private[python] (
     isWindows: Option[Boolean] = None
 ) {
 
-  /** Provides a list of possible locations for the `libpython`
-    * corresponding to this Python interpreter
+  /** Provides a list of possible locations for the `libpython` corresponding to this Python
+    * interpreter
     */
   lazy val nativeLibraryPaths: Try[Seq[String]] =
     callPython(Python.libPathCmd)
       .map(_.split(";"))
       .map(_.map(_.trim).distinct.filter(_.nonEmpty).toSeq)
 
-  /** Name of the `libpython` corresponding to this Python interpreter,
-    * ''e.g.'' `python3.8`, `python3.7m`
+  /** Name of the `libpython` corresponding to this Python interpreter, ''e.g.'' `python3.8`,
+    * `python3.7m`
     */
   lazy val nativeLibrary: Try[String] = ldversion.map("python" + _)
 
@@ -33,8 +33,8 @@ class Python private[python] (
     */
   lazy val executable: Try[String] = callPython(Python.executableCmd)
 
-  /** Provides the system properties necessary for setting up
-    * [[https://scalapy.dev/ ScalaPy]] with this Python interpreter
+  /** Provides the system properties necessary for setting up [[https://scalapy.dev/ ScalaPy]] with
+    * this Python interpreter
     *
     * @example
     *
@@ -72,9 +72,8 @@ class Python private[python] (
     )
   }
 
-  /** Provides the recommended linker options for embedding this
-    * Python interpreter into another application,
-    * mostly extracted from the outputs of
+  /** Provides the recommended linker options for embedding this Python interpreter into another
+    * application, mostly extracted from the outputs of
     *
     * `pythonX.Y-config --ldflags` for `python` 3.7 and
     *
@@ -143,8 +142,9 @@ class Python private[python] (
 
 object Python {
 
-  /** @param interpreter optional path to a Python interpreter executable,
-    * which defaults to `Some("python3")` if not provided
+  /** @param interpreter
+    *   optional path to a Python interpreter executable, which defaults to `Some("python3")` if not
+    *   provided
     *
     * @example
     *
@@ -158,13 +158,14 @@ object Python {
     * println(py.eval("'Hello from Python!'"))
     * }}}
     *
-    * @return an instance of [[ai.kien.python.Python]] which provides
-    * the necessary configuration properties for embedding a specific
-    * Python interpreter
+    * @return
+    *   an instance of [[ai.kien.python.Python]] which provides the necessary configuration
+    *   properties for embedding a specific Python interpreter
     */
   def apply(interpreter: Option[String] = None): Python = new Python(interpreter)
 
-  /** @param interpreter path to a Python interpreter executable
+  /** @param interpreter
+    *   path to a Python interpreter executable
     *
     * @example
     *
@@ -178,9 +179,9 @@ object Python {
     * println(py.eval("'Hello from Python!'"))
     * }}}
     *
-    * @return an instance of [[ai.kien.python.Python]] which provides
-    * the necessary configuration properties for embedding a specific
-    * Python interpreter
+    * @return
+    *   an instance of [[ai.kien.python.Python]] which provides the necessary configuration
+    *   properties for embedding a specific Python interpreter
     */
   def apply(interpreter: String): Python = apply(Some(interpreter))
 
