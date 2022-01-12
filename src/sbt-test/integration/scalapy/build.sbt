@@ -1,8 +1,8 @@
 import ai.kien.python.Python
 
-lazy val scala212 = "2.12.14"
+lazy val scala212 = "2.12.15"
 lazy val scala213 = "2.13.6"
-lazy val scala3   = "3.0.0"
+lazy val scala3   = "3.1.0"
 
 ThisBuild / scalaVersion := scala213
 
@@ -28,7 +28,7 @@ val checkModule = taskKey[Unit]("Check loading a dummy module")
 lazy val root = crossProject(JVMPlatform, NativePlatform)
   .in(file("."))
   .settings(
-    crossScalaVersions := Seq(scala212, scala213),
+    crossScalaVersions  := Seq(scala212, scala213),
     Compile / mainClass := Some("project.Main")
   )
   .jvmSettings(
@@ -41,6 +41,6 @@ lazy val root = crossProject(JVMPlatform, NativePlatform)
   )
   .nativeSettings(
     libraryDependencies += "me.shadaj" %%% "scalapy-core" % scalapyVersion,
-    nativeLinkStubs := true,
+    nativeLinkStubs                     := true,
     nativeLinkingOptions ++= pythonLdFlags
   )

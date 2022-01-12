@@ -26,12 +26,12 @@ jobs:
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
-          python: ${{ matrix.python }}
+          python-version: ${{ matrix.python }}
       - name: Unit tests
         run: sbt +test
         shell: bash
       - name: Integration tests again latest ScalaPy stable
-        run: scripts/integration_test.sh python3 0.5.0
+        run: scripts/integration_test.sh python3 0.5.1
         shell: bash
       - name: Test virtualenv
-        run: scripts/virtualenv_test.sh 0.5.0+8-7c7a6042
+        run: scripts/virtualenv_test.sh 0.5.1

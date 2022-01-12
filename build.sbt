@@ -3,8 +3,8 @@ import Dependencies._
 inThisBuild(
   List(
     organization := "ai.kien",
-    homepage := Some(url("https://github.com/kiendang/python-native-libs")),
-    licenses := List("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
+    homepage     := Some(url("https://github.com/kiendang/python-native-libs")),
+    licenses     := List("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
     developers := List(
       Developer(
         "kiendang",
@@ -16,11 +16,11 @@ inThisBuild(
   )
 )
 
-lazy val scala212 = "2.12.14"
-lazy val scala213 = "2.13.6"
-lazy val scala3   = "3.0.0"
+lazy val scala212 = "2.12.15"
+lazy val scala213 = "2.13.7"
+lazy val scala3   = "3.1.0"
 
-lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.0")
+lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.1")
 
 lazy val enableScripted = getProp("plugin.ci").isDefined
 
@@ -59,7 +59,7 @@ def scriptedSettings = if (enableScripted) {
 lazy val root = (project in file("."))
   .enablePlugins(scriptedPlugin: _*)
   .settings(
-    name := "Python Native Libs",
+    name               := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213, scala3),
     libraryDependencies ++= Seq(
       scalaCollectionCompat,
@@ -67,9 +67,9 @@ lazy val root = (project in file("."))
       jimfs     % Test
     ),
     sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision,
+    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
+    semanticdbEnabled      := true,
+    semanticdbVersion      := scalafixSemanticdb.revision,
     scalacOptions ++= warnUnusedImports(scalaVersion.value)
   )
   .settings(scriptedSettings)

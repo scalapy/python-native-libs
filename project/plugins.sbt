@@ -1,3 +1,3 @@
-addSbtPlugin("org.scalameta" % "sbt-mdoc"       % "2.2.21")
-addSbtPlugin("com.geirsson"  % "sbt-ci-release" % "1.5.7")
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix"   % "0.9.29")
+addSbtPlugin("org.scalameta"  % "sbt-mdoc"       % "2.2.24")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.9")
+addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"   % "0.9.34")
