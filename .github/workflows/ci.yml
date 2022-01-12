@@ -30,7 +30,7 @@ jobs:
       - name: Unit tests
         run: sbt +test
         shell: bash
-      - name: Integration tests again latest ScalaPy stable
+      - name: Integration tests against latest ScalaPy stable
         run: scripts/integration_test.sh python3 0.5.1
         shell: bash
       - name: Test virtualenv
