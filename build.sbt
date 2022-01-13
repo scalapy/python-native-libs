@@ -17,7 +17,7 @@ inThisBuild(
 )
 
 lazy val scala212 = "2.12.15"
-lazy val scala213 = "2.13.7"
+lazy val scala213 = "2.13.8"
 lazy val scala3   = "3.1.0"
 
 lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.1")
