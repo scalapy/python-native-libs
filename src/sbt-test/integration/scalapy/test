@@ -1,3 +1,4 @@
 > +rootJVM/run
 > +rootNative/run
 > +rootJVM/checkModule
+> +rootNative/checkModule

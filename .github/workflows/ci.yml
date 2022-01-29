@@ -35,6 +35,8 @@ jobs:
       - name: Unit tests
         run: sbt +test
       - name: Integration tests
-        run: scripts/integration_test.sh python3 ${{ matrix.scalapy }}
+        run: |
+          sbt +publishLocal
+          scripts/integration_test.sh python3 ${{ matrix.scalapy }}
       - name: Virtualenv tests
         run: scripts/virtualenv_test.sh ${{ matrix.scalapy }}
