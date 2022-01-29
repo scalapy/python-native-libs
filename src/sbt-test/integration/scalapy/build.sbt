@@ -28,11 +28,11 @@ val checkModule = taskKey[Unit]("Check loading a dummy module")
 lazy val root = crossProject(JVMPlatform, NativePlatform)
   .in(file("."))
   .settings(
-    crossScalaVersions  := Seq(scala212, scala213),
     Compile / mainClass := Some("project.Main")
   )
   .jvmSettings(
-    fork := true,
+    fork               := true,
+    crossScalaVersions := Seq(scala212, scala213, scala3),
     javaOptions ++= javaOpts ++ getProps("plugin.virtualenv"),
     libraryDependencies += "me.shadaj" %% "scalapy-core" % scalapyVersion,
     checkModule := {
@@ -40,6 +40,7 @@ lazy val root = crossProject(JVMPlatform, NativePlatform)
     }
   )
   .nativeSettings(
+    crossScalaVersions                  := Seq(scala212, scala213),
     libraryDependencies += "me.shadaj" %%% "scalapy-core" % scalapyVersion,
     nativeLinkStubs                     := true,
     nativeLinkingOptions ++= pythonLdFlags

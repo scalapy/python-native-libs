@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         jdk: [8]
         python: ['3.7', '3.8', '3.9', '3.10']
-        scalapy: ['0.5.1']
+        scalapy: ['0.5.1+5-107ab671']
     defaults:
       run:
         shell:
