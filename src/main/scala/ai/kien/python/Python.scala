@@ -190,11 +190,12 @@ object Python {
   private def ldversionCmd =
     "import sys,sysconfig;print(sysconfig.get_python_version() + sys.abiflags)"
 
-  private def libPathCmd = Seq(
-    "import sys",
-    "import os.path",
-    "from sysconfig import get_config_var",
-    "print(get_config_var('LIBPL') + ';')",
-    "print(os.path.join(sys.base_prefix, 'lib'))"
-  ).mkString(";")
+  private def libPathCmd =
+    """import sys
+      |import os.path
+      |from sysconfig import get_config_var
+      |libpl = get_config_var('LIBPL')
+      |libpl = libpl + ';' if libpl is not None else ''
+      |print(libpl + os.path.join(sys.base_prefix, 'lib'))
+    """.stripMargin
 }

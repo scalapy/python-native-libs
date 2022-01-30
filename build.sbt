@@ -48,7 +48,7 @@ def scriptedSettings = if (enableScripted) {
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++ {
         Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
-          getProps("plugin.python.executable", "plugin.virtualenv") ++
+          getProps("plugin.python.executable") ++
           Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
       }
     },
