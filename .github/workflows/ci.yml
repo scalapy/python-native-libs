@@ -27,11 +27,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - name: Integration tests against latest ScalaPy stable
-        run: scripts/integration_test.sh python3 0.5.2
+      - name: Test
+        run: sbtn +test
         shell: bash
-      - name: Test virtualenv
-        run: scripts/virtualenv_test.sh 0.5.2
   publish:
     runs-on: ubuntu-20.04
     needs: [test]
