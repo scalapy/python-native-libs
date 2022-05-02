@@ -17,69 +17,46 @@ inThisBuild(
 )
 
 lazy val scala212 = "2.12.15"
-lazy val scala213 = "2.13.8"
-lazy val scala3   = "3.1.0"
+lazy val scala213 = "2.13.6"
+lazy val scala3   = "3.0.2"
 
-lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.1")
-
-lazy val enableScripted = getProp("plugin.ci").isDefined
-
-ThisBuild / scalaVersion := (if (enableScripted) scala212 else scala213)
-
+ThisBuild / scalaVersion := scala213
 ThisBuild / scalafixDependencies += organizeImports
 
-def warnUnusedImports(scalaVersion: String) =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, _)) => Seq("-Xlint:unused")
-    case _            => Nil
-  }
-
-def getProp(p: String) = Option(sys.props(p)).map(_.trim).filter(_.nonEmpty)
-
-def getProps(prop: String*) =
-  prop
-    .map(p => p -> getProp(p))
-    .collect { case (k, Some(v)) => s"""-D$k=$v""" }
-
-def scriptedPlugin = if (enableScripted) Seq(ScriptedPlugin) else Nil
-
-def scriptedSettings = if (enableScripted) {
-  Seq(
-    scriptedLaunchOpts := {
-      scriptedLaunchOpts.value ++ {
-        Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
-          getProps("plugin.python.executable", "plugin.virtualenv") ++
-          Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-      }
-    },
-    scriptedBufferLog := false
-  )
-} else Nil
-
-lazy val root = (project in file("."))
-  .enablePlugins(scriptedPlugin: _*)
+lazy val root = project
+  .in(file("."))
   .settings(
     name               := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213, scala3),
     libraryDependencies ++= Seq(
       scalaCollectionCompat,
-      scalaTest % Test,
-      jimfs     % Test
+      scalapy   % Test,
+      scalaTest % Test
     ),
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
-    semanticdbEnabled      := true,
-    semanticdbVersion      := scalafixSemanticdb.revision,
-    scalacOptions ++= warnUnusedImports(scalaVersion.value)
+    Test / fork := true
   )
-  .settings(scriptedSettings)
+  .settings(
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalacOptions += {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => "-Wunused:imports"
+        case Some((2, 12)) => "-Ywarn-unused-import"
+        case _             => ""
+      }
+    }
+  )
+  .settings(
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
+  )
 
 lazy val docs = project
   .in(file("python-docs"))
+  .enablePlugins(MdocPlugin)
   .settings(
     mdocVariables := Map(
       "PYTHON" -> "/usr/bin/python3"
     )
   )
   .dependsOn(root)
-  .enablePlugins(MdocPlugin)
