@@ -13,7 +13,7 @@ sbt \
   -Dplugin.virtualenv=true \
   -Dplugin.python.executable="${VENV_DIR}/bin/python" \
   -Dplugin.scalapy.version="$1" \
-  scripted
+  tests/scripted
 
 echo "Delete virtualenv ${VENV_DIR}"
 rm -r "${VENV_DIR}"

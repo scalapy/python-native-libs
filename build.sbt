@@ -71,7 +71,7 @@ lazy val tests = project
     scriptedLaunchOpts ++= {
       Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
         getProps("plugin.python.executable", "plugin.virtualenv") ++
-        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+        Seq("-Xmx1024M", "-Dplugin.version=" + (root / version).value)
     },
     scriptedBufferLog := false
   )
