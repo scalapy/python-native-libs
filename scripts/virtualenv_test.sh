@@ -7,6 +7,8 @@ echo "Virtualenv created at ${VENV_DIR}"
 python3 -m venv "${VENV_DIR}"
 "${VENV_DIR}"/bin/python -m pip install examples/python-package
 
+sbt +publishLocal
+
 sbt \
   -Dplugin.ci=true \
   -Dplugin.virtualenv=true \

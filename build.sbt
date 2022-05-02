@@ -24,15 +24,9 @@ lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.2")
 
 lazy val enableScripted = getProp("plugin.ci").isDefined
 
-ThisBuild / scalaVersion := (if (enableScripted) scala212 else scala213)
+ThisBuild / scalaVersion := scala213
 
 ThisBuild / scalafixDependencies += organizeImports
-
-def warnUnusedImports(scalaVersion: String) =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, _)) => Seq("-Xlint:unused")
-    case _            => Nil
-  }
 
 def getProp(p: String) = Option(sys.props(p)).map(_.trim).filter(_.nonEmpty)
 
@@ -41,41 +35,56 @@ def getProps(prop: String*) =
     .map(p => p -> getProp(p))
     .collect { case (k, Some(v)) => s"""-D$k=$v""" }
 
-def scriptedPlugin = if (enableScripted) Seq(ScriptedPlugin) else Nil
+lazy val publishSettings = Seq(
+  sonatypeCredentialHost := "s01.oss.sonatype.org",
+  sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
+)
 
-def scriptedSettings = if (enableScripted) {
-  Seq(
-    scriptedLaunchOpts := {
-      scriptedLaunchOpts.value ++ {
-        Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
-          getProps("plugin.python.executable", "plugin.virtualenv") ++
-          Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-      }
-    },
-    scriptedBufferLog := false
-  )
-} else Nil
+lazy val noPublishSettings = Seq(
+  publishArtifact   := false,
+  packagedArtifacts := Map.empty,
+  publish           := {},
+  publishLocal      := {}
+)
 
-lazy val root = (project in file("."))
-  .enablePlugins(scriptedPlugin: _*)
+lazy val `python-native-libs` = project
+  .in(file("python-native-libs"))
   .settings(
     name               := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213, scala3),
     libraryDependencies += scalaCollectionCompat,
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
-    semanticdbEnabled      := true,
-    semanticdbVersion      := scalafixSemanticdb.revision,
-    scalacOptions ++= warnUnusedImports(scalaVersion.value)
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalacOptions += {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => "-Wunused:imports"
+        case Some((2, 12)) => "-Ywarn-unused-import"
+        case _             => ""
+      }
+    }
   )
-  .settings(scriptedSettings)
+  .settings(publishSettings)
+
+lazy val tests = project
+  .in(file("tests"))
+  .enablePlugins(ScriptedPlugin)
+  .settings(
+    scalaVersion := scala212,
+    scriptedLaunchOpts ++= {
+      Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
+        getProps("plugin.python.executable", "plugin.virtualenv") ++
+        Seq("-Xmx1024M", "-Dplugin.version=" + (`python-native-libs` / version).value)
+    },
+    scriptedBufferLog := false
+  )
+  .settings(noPublishSettings)
 
 lazy val docs = project
   .in(file("python-docs"))
+  .enablePlugins(MdocPlugin)
   .settings(
     mdocVariables := Map(
       "PYTHON" -> "/usr/bin/python3"
     )
   )
-  .dependsOn(root)
-  .enablePlugins(MdocPlugin)
+  .dependsOn(`python-native-libs`)
