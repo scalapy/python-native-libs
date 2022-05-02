@@ -10,7 +10,6 @@ python3 -m venv "${VENV_DIR}"
 sbt +publishLocal
 
 sbt \
-  -Dplugin.ci=true \
   -Dplugin.virtualenv=true \
   -Dplugin.python.executable="${VENV_DIR}/bin/python" \
   -Dplugin.scalapy.version="$1" \

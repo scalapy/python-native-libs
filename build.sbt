@@ -22,8 +22,6 @@ lazy val scala3   = "3.1.0"
 
 lazy val scalapyVersion = getProp("plugin.scalapy.version").getOrElse("0.5.2")
 
-lazy val enableScripted = getProp("plugin.ci").isDefined
-
 ThisBuild / scalaVersion := scala213
 
 ThisBuild / scalafixDependencies += organizeImports
@@ -73,7 +71,7 @@ lazy val tests = project
     scriptedLaunchOpts ++= {
       Seq(s"-Dplugin.scalapy.version=$scalapyVersion") ++
         getProps("plugin.python.executable", "plugin.virtualenv") ++
-        Seq("-Xmx1024M", "-Dplugin.version=" + (`python-native-libs` / version).value)
+        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false
   )
