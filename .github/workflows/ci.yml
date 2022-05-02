@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Integration tests against latest ScalaPy stable
-        run: scripts/integration_test.sh python3 0.5.1
+        run: scripts/integration_test.sh python3 0.5.2
         shell: bash
       - name: Test virtualenv
-        run: scripts/virtualenv_test.sh 0.5.1
+        run: scripts/virtualenv_test.sh 0.5.2
