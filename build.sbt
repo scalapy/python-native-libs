@@ -45,8 +45,8 @@ lazy val noPublishSettings = Seq(
   publishLocal      := {}
 )
 
-lazy val `python-native-libs` = project
-  .in(file("python-native-libs"))
+lazy val root = project
+  .in(file("."))
   .settings(
     name               := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213, scala3),
@@ -85,4 +85,4 @@ lazy val docs = project
       "PYTHON" -> "/usr/bin/python3"
     )
   )
-  .dependsOn(`python-native-libs`)
+  .dependsOn(root)
