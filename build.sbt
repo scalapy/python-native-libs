@@ -35,8 +35,6 @@ def getProps(prop: String*) =
     .map(p => p -> getProp(p))
     .collect { case (k, Some(v)) => s"""-D$k=$v""" }
 
-ThisBuild / dynverSonatypeSnapshots := false
-
 lazy val publishSettings = Seq(
   sonatypeCredentialHost := "s01.oss.sonatype.org",
   sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
