@@ -61,11 +61,7 @@ lazy val root = (project in file("."))
   .settings(
     name               := "Python Native Libs",
     crossScalaVersions := Seq(scala212, scala213, scala3),
-    libraryDependencies ++= Seq(
-      scalaCollectionCompat,
-      scalaTest % Test,
-      jimfs     % Test
-    ),
+    libraryDependencies += scalaCollectionCompat,
     sonatypeCredentialHost := "s01.oss.sonatype.org",
     sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
     semanticdbEnabled      := true,
