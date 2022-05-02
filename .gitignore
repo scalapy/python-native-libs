@@ -10,3 +10,5 @@ __pycache__/
 
 .DS_Store
 *.worksheet.sc
+
+hs_err*.log
