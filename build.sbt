@@ -23,21 +23,27 @@ lazy val scala3   = "3.0.2"
 ThisBuild / scalaVersion := scala213
 ThisBuild / scalafixDependencies += organizeImports
 
-lazy val root = project
+lazy val root = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("."))
   .settings(
-    name               := "Python Native Libs",
-    crossScalaVersions := Seq(scala212, scala213, scala3),
+    name := "Python Native Libs",
     libraryDependencies ++= Seq(
-      scalaCollectionCompat,
-      scalapy   % Test,
-      scalaTest % Test
-    ),
-    Test / fork := true
+      "org.scala-lang.modules" %%% "scala-collection-compat" % scalaCollectionCompatVersion,
+      "org.scalatest"          %%% "scalatest"               % scalaTestVersion % Test,
+      "me.shadaj"              %%% "scalapy-core"            % scalapyVersion   % Test
+    )
   )
   .settings(
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision,
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
+  )
+  .jvmSettings(
+    crossScalaVersions := Seq(scala212, scala213, scala3),
+    Test / fork        := true,
+    semanticdbEnabled  := true,
+    semanticdbVersion  := scalafixSemanticdb.revision,
     scalacOptions += {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 13)) => "-Wunused:imports"
@@ -46,9 +52,8 @@ lazy val root = project
       }
     }
   )
-  .settings(
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
+  .nativeSettings(
+    crossScalaVersions := Seq(scala212, scala213)
   )
 
 lazy val docs = project
@@ -59,4 +64,4 @@ lazy val docs = project
       "PYTHON" -> "/usr/bin/python3"
     )
   )
-  .dependsOn(root)
+  .dependsOn(root.jvm)
