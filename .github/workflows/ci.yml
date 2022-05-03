@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Test
-        run: sbtn +test
+        run: sbtn +root/test
         shell: bash
   publish:
     runs-on: ubuntu-20.04

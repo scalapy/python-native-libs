@@ -24,17 +24,20 @@ ThisBuild / scalaVersion := scala213
 ThisBuild / scalafixDependencies += organizeImports
 
 lazy val root = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("."))
   .settings(
-    name                   := "Python Native Libs",
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
+    name := "Python Native Libs",
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %%% "scala-collection-compat" % scalaCollectionCompatVersion,
       "org.scalatest"          %%% "scalatest"               % scalaTestVersion % Test,
       "me.shadaj"              %%% "scalapy-core"            % scalapyVersion   % Test
     )
+  )
+  .settings(
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
   )
   .jvmSettings(
     crossScalaVersions := Seq(scala212, scala213, scala3),
