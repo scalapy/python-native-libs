@@ -2,7 +2,6 @@ package ai.kien.python
 
 import java.io.{File, FileNotFoundException}
 import java.nio.file.{FileSystem, FileSystems, Files}
-import scala.collection.compat.immutable.LazyList
 import scala.util.{Properties, Success, Try}
 
 /** A class for extracting the necessary configuration properties for embedding a specific Python
@@ -95,11 +94,16 @@ class Python private[python] (
   private val pathSeparator =
     isWindows.map(if (_) ";" else ":").getOrElse(File.pathSeparator)
 
-  private def existsInPath(exec: String): Boolean = path
-    .split(pathSeparator)
-    .to(LazyList)
-    .map(fs.getPath(_))
-    .exists(path => Files.exists(path.resolve(exec)))
+  private def existsInPath(exec: String): Boolean = {
+    val pathExts = getEnv("PATHEXT").getOrElse("").split(pathSeparator)
+    val l = for {
+      elem <- path.split(pathSeparator).iterator
+      elemPath = fs.getPath(elem)
+      ext  <- pathExts.iterator
+    } yield Files.exists(elemPath.resolve(exec + ext))
+
+    l.contains(true)
+  }
 
   private lazy val python: Try[String] = Try(
     if (existsInPath("python3"))
