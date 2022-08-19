@@ -99,7 +99,7 @@ class Python private[python] (
     val l = for {
       elem <- path.split(pathSeparator).iterator
       elemPath = fs.getPath(elem)
-      ext  <- pathExts.iterator
+      ext <- pathExts.iterator
     } yield Files.exists(elemPath.resolve(exec + ext))
 
     l.contains(true)
@@ -192,13 +192,21 @@ object Python {
   private def executableCmd = "import sys;print(sys.executable)"
 
   private def ldversionCmd =
-    "import sys,sysconfig;print(sysconfig.get_python_version() + sys.abiflags)"
+    """import sys
+      |import sysconfig
+      |try:
+      |    abiflags = sys.abiflags
+      |except AttributeError:
+      |    abiflags = ''
+      |print(sysconfig.get_python_version() + abiflags)
+    """.stripMargin
 
-  private def libPathCmd = Seq(
-    "import sys",
-    "import os.path",
-    "from sysconfig import get_config_var",
-    "print(get_config_var('LIBPL') + ';')",
-    "print(os.path.join(sys.base_prefix, 'lib'))"
-  ).mkString(";")
+  private def libPathCmd =
+    """import sys
+      |import os.path
+      |from sysconfig import get_config_var
+      |libpl = get_config_var('LIBPL')
+      |libpl = libpl + ';' if libpl is not None else ''
+      |print(libpl + os.path.join(sys.base_prefix, 'lib'))
+    """.stripMargin
 }
