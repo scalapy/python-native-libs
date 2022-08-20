@@ -19,7 +19,7 @@ class Python private[python] (
     * interpreter
     */
   lazy val nativeLibraryPaths: Try[Seq[String]] =
-    callPython(Python.libPathCmd)
+    callPython(if (isWin) Python.libPathCmdWin else Python.libPathCmd)
       .map(_.split(";"))
       .map(_.map(_.trim).distinct.filter(_.nonEmpty).toSeq)
 
@@ -91,6 +91,10 @@ class Python private[python] (
 
   private val path: String = getEnv("PATH").getOrElse("")
 
+  private lazy val isWin = isWindows.getOrElse(
+    System.getProperty("os.name").startsWith("Windows")
+  )
+
   private val pathSeparator =
     isWindows.map(if (_) ";" else ":").getOrElse(File.pathSeparator)
 
@@ -122,7 +126,9 @@ class Python private[python] (
   private def callPython(cmd: String): Try[String] =
     interp.flatMap(python => callProcess(Seq(python, "-c", cmd)))
 
-  private def ldversion: Try[String] = callPython(Python.ldversionCmd)
+  private def ldversion: Try[String] = callPython(
+    if (isWin) Python.ldversionCmdWin else Python.ldversionCmd
+  )
 
   private lazy val binDir =
     callPython("import sys;print(sys.base_prefix)")
@@ -197,8 +203,18 @@ object Python {
       |try:
       |    abiflags = sys.abiflags
       |except AttributeError:
-      |    abiflags = ''
+      |    abiflags = sysconfig.get_config_var('abiflags') or ''
       |print(sysconfig.get_python_version() + abiflags)
+    """.stripMargin
+
+  private def ldversionCmdWin =
+    """import sys
+      |import sysconfig
+      |try:
+      |    abiflags = sys.abiflags
+      |except AttributeError:
+      |    abiflags = sysconfig.get_config_var('abiflags') or ''
+      |print(''.join(map(str, sys.version_info[:2])) + abiflags)
     """.stripMargin
 
   private def libPathCmd =
@@ -208,5 +224,10 @@ object Python {
       |libpl = get_config_var('LIBPL')
       |libpl = libpl + ';' if libpl is not None else ''
       |print(libpl + os.path.join(sys.base_prefix, 'lib'))
+    """.stripMargin
+
+  private def libPathCmdWin =
+    """import sys
+      |print(sys.base_prefix)
     """.stripMargin
 }
