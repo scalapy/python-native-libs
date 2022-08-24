@@ -2,7 +2,6 @@ package ai.kien.python
 
 import java.io.{File, FileNotFoundException}
 import java.nio.file.{FileSystem, FileSystems, Files}
-import scala.collection.compat.immutable.LazyList
 import scala.util.{Properties, Success, Try}
 
 /** A class for extracting the necessary configuration properties for embedding a specific Python
@@ -20,7 +19,7 @@ class Python private[python] (
     * interpreter
     */
   lazy val nativeLibraryPaths: Try[Seq[String]] =
-    callPython(Python.libPathCmd)
+    callPython(if (isWin) Python.libPathCmdWin else Python.libPathCmd)
       .map(_.split(";"))
       .map(_.map(_.trim).distinct.filter(_.nonEmpty).toSeq)
 
@@ -92,14 +91,23 @@ class Python private[python] (
 
   private val path: String = getEnv("PATH").getOrElse("")
 
+  private lazy val isWin = isWindows.getOrElse(
+    System.getProperty("os.name").startsWith("Windows")
+  )
+
   private val pathSeparator =
     isWindows.map(if (_) ";" else ":").getOrElse(File.pathSeparator)
 
-  private def existsInPath(exec: String): Boolean = path
-    .split(pathSeparator)
-    .to(LazyList)
-    .map(fs.getPath(_))
-    .exists(path => Files.exists(path.resolve(exec)))
+  private def existsInPath(exec: String): Boolean = {
+    val pathExts = getEnv("PATHEXT").getOrElse("").split(pathSeparator)
+    val l = for {
+      elem <- path.split(pathSeparator).iterator
+      elemPath = fs.getPath(elem)
+      ext <- pathExts.iterator
+    } yield Files.exists(elemPath.resolve(exec + ext))
+
+    l.contains(true)
+  }
 
   private lazy val python: Try[String] = Try(
     if (existsInPath("python3"))
@@ -118,7 +126,9 @@ class Python private[python] (
   private def callPython(cmd: String): Try[String] =
     interp.flatMap(python => callProcess(Seq(python, "-c", cmd)))
 
-  private def ldversion: Try[String] = callPython(Python.ldversionCmd)
+  private def ldversion: Try[String] = callPython(
+    if (isWin) Python.ldversionCmdWin else Python.ldversionCmd
+  )
 
   private lazy val binDir =
     callPython("import sys;print(sys.base_prefix)")
@@ -188,13 +198,36 @@ object Python {
   private def executableCmd = "import sys;print(sys.executable)"
 
   private def ldversionCmd =
-    "import sys,sysconfig;print(sysconfig.get_python_version() + sys.abiflags)"
+    """import sys
+      |import sysconfig
+      |try:
+      |    abiflags = sys.abiflags
+      |except AttributeError:
+      |    abiflags = sysconfig.get_config_var('abiflags') or ''
+      |print(sysconfig.get_python_version() + abiflags)
+    """.stripMargin
 
-  private def libPathCmd = Seq(
-    "import sys",
-    "import os.path",
-    "from sysconfig import get_config_var",
-    "print(get_config_var('LIBPL') + ';')",
-    "print(os.path.join(sys.base_prefix, 'lib'))"
-  ).mkString(";")
+  private def ldversionCmdWin =
+    """import sys
+      |import sysconfig
+      |try:
+      |    abiflags = sys.abiflags
+      |except AttributeError:
+      |    abiflags = sysconfig.get_config_var('abiflags') or ''
+      |print(''.join(map(str, sys.version_info[:2])) + abiflags)
+    """.stripMargin
+
+  private def libPathCmd =
+    """import sys
+      |import os.path
+      |from sysconfig import get_config_var
+      |libpl = get_config_var('LIBPL')
+      |libpl = libpl + ';' if libpl is not None else ''
+      |print(libpl + os.path.join(sys.base_prefix, 'lib'))
+    """.stripMargin
+
+  private def libPathCmdWin =
+    """import sys
+      |print(sys.base_prefix)
+    """.stripMargin
 }
