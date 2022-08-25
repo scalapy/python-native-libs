@@ -78,7 +78,14 @@ class Python private[python] (
     *
     * `pythonX.Y-config --ldflags --embed` for `python` 3.8+
     */
-  lazy val ldflags: Try[Seq[String]] = for {
+  lazy val ldflags: Try[Seq[String]] = if (isWin) ldflagsWin else ldflagsNix
+
+  lazy val ldflagsWin = for {
+    nativeLibraryPaths <- nativeLibraryPaths
+    nativeLibrary      <- nativeLibrary
+  } yield ("-l" + nativeLibrary) +: nativeLibraryPaths.map("-L" + _)
+
+  lazy val ldflagsNix: Try[Seq[String]] = for {
     rawLdflags         <- rawLdflags
     nativeLibraryPaths <- nativeLibraryPaths
     libPathFlags = nativeLibraryPaths.map("-L" + _)
