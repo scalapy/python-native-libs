@@ -46,11 +46,6 @@ lazy val root = project
       }
     }
   )
-// TODO: reconfigure sonatype publishing
-//  .settings(
-//    sonatypeCredentialHost := "s01.oss.sonatype.org",
-//    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
-//  )
 
 lazy val docs = project
   .in(file("python-docs"))
