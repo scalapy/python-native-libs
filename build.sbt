@@ -5,7 +5,7 @@ inThisBuild(
     organization := "ai.kien",
     homepage     := Some(url("https://github.com/kiendang/python-native-libs")),
     licenses     := List("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
-    developers := List(
+    developers   := List(
       Developer(
         "kiendang",
         "Dang Trung Kien",
@@ -16,9 +16,9 @@ inThisBuild(
   )
 )
 
-lazy val scala212 = "2.12.15"
-lazy val scala213 = "2.13.6"
-lazy val scala3   = "3.0.2"
+lazy val scala212 = "2.12.20"
+lazy val scala213 = "2.13.17"
+lazy val scala3   = "3.3.7"
 
 ThisBuild / scalaVersion := scala213
 ThisBuild / scalafixDependencies += organizeImports
@@ -46,10 +46,11 @@ lazy val root = project
       }
     }
   )
-  .settings(
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
-  )
+// TODO: reconfigure sonatype publishing
+//  .settings(
+//    sonatypeCredentialHost := "s01.oss.sonatype.org",
+//    sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
+//  )
 
 lazy val docs = project
   .in(file("python-docs"))

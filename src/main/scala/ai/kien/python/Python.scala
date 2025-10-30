@@ -89,7 +89,7 @@ class Python private[python] (
     rawLdflags         <- rawLdflags
     nativeLibraryPaths <- nativeLibraryPaths
     libPathFlags = nativeLibraryPaths.map("-L" + _)
-    flags = rawLdflags
+    flags        = rawLdflags
       .split("\\s+(?=-)")
       .filter(f => f.nonEmpty && !libPathFlags.contains(f))
       .flatMap(f => if (f.startsWith("-L")) Array(f) else f.split("\\s+"))
@@ -107,7 +107,7 @@ class Python private[python] (
 
   private def existsInPath(exec: String): Boolean = {
     val pathExts = getEnv("PATHEXT").getOrElse("").split(pathSeparator)
-    val l = for {
+    val l        = for {
       elem <- path.split(pathSeparator).iterator
       elemPath = fs.getPath(elem)
       ext <- pathExts.iterator
