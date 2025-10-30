@@ -5,7 +5,7 @@ inThisBuild(
     organization := "ai.kien",
     homepage     := Some(url("https://github.com/kiendang/python-native-libs")),
     licenses     := List("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
-    developers := List(
+    developers   := List(
       Developer(
         "kiendang",
         "Dang Trung Kien",
