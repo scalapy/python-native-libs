@@ -21,7 +21,6 @@ lazy val scala213 = "2.13.17"
 lazy val scala3   = "3.3.7"
 
 ThisBuild / scalaVersion := scala213
-ThisBuild / scalafixDependencies += organizeImports
 
 lazy val root = project
   .in(file("."))
